@@ -12,15 +12,15 @@ datasource db {
 }
 
 model Profile {
-  id     String @id @default(uuid())
-  userId String @unique
-  name   String
-  imgUrl String @db.Text
-  email  String @db.Text
+  id       String @id @default(uuid())
+  userId   String @unique
+  name     String
+  imageUrl String @db.Text
+  email    String @db.Text
 
-  servers Server[]
-  members Member[]
-  Channel Channel[]
+  servers  Server[]
+  members  Member[]
+  channels Channel[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -29,14 +29,14 @@ model Profile {
 model Server {
   id         String @id @default(uuid())
   name       String
-  imgUrl     String @db.Text
+  imageUrl   String @db.Text
   inviteCode String @db.Text
 
   profileId String
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
-  members Member[]
-  Channel Channel[]
+  members  Member[]
+  channels Channel[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -46,7 +46,7 @@ model Server {
 
 enum MemberRole {
   ADMIN
-  MEMBER
+  MODERATOR
   Guest
 }
 
