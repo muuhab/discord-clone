@@ -7,6 +7,7 @@ import ChatWelcome from './chat-welcome';
 import { useChatQuery } from '@/hooks/use-chat-query';
 import { AlignCenter, Loader2, ServerCrash } from 'lucide-react';
 import ChatItem from './chat-item';
+import { useChatSocket } from '@/hooks/use-chat-socket';
 
 const DATE_FORMAT = 'd MMM yyyy, HH:mm'
 interface ChatMessagesProps {
@@ -38,6 +39,8 @@ const ChatMessages: FC<ChatMessagesProps> = ({
 }) => {
 
     const queryKey = `chat:${chatId}`
+    const updateKey = `chat:${chatId}:messages:update`
+    const addKey = `chat:${chatId}:messages`
     const {
         data,
         fetchNextPage,
@@ -49,6 +52,11 @@ const ChatMessages: FC<ChatMessagesProps> = ({
         apiUrl,
         paramKey,
         paramValue,
+    })
+    useChatSocket({
+        queryKey,
+        updateKey,
+        addKey
     })
 
     if (status === 'loading')
