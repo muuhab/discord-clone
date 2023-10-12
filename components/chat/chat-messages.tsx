@@ -116,7 +116,7 @@ const ChatMessages: FC<ChatMessagesProps> = ({
         <div className="flex flex-col-reverse mt-auto">
             {data?.pages?.map((group, i) => (
                 <Fragment key={i}>
-                    {group.items.map((message: MessageWithMemberWithProfile) => (
+                    {group?.items.map((message: MessageWithMemberWithProfile) => (
                         <ChatItem
                             key={message.id}
                             id={message.id}
