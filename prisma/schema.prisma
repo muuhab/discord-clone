@@ -54,7 +54,9 @@ model User {
 
   accounts Account[]
   sessions Session[]
-  Profile  Profile?
+  servers  Server[]
+  members  Member[]
+  channels Channel[]
 }
 
 model VerificationToken {
@@ -65,31 +67,14 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model Profile {
-  id       String @id @default(uuid())
-  name     String
-  imageUrl String @db.Text
-  email    String @db.Text
-
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  servers  Server[]
-  members  Member[]
-  channels Channel[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 model Server {
   id         String @id @default(uuid())
   name       String
   imageUrl   String @db.Text
   inviteCode String @unique
 
-  profileId String
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   members  Member[]
   channels Channel[]
@@ -97,7 +82,7 @@ model Server {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([profileId])
+  @@index([userId])
 }
 
 enum MemberRole {
@@ -110,8 +95,8 @@ model Member {
   id   String     @id @default(uuid())
   role MemberRole @default(GUEST)
 
-  profileId String
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   serverId String
   server   Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
@@ -124,7 +109,7 @@ model Member {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([profileId])
+  @@index([userId])
   @@index([serverId])
 }
 
@@ -139,8 +124,8 @@ model Channel {
   name String
   type ChannelType @default(TEXT)
 
-  profileId String
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   serverId String
   server   Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
@@ -151,7 +136,7 @@ model Channel {
   updatedAt DateTime @updatedAt
 
   @@index([serverId])
-  @@index([profileId])
+  @@index([userId])
 }
 
 model Message {

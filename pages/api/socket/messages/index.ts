@@ -1,4 +1,4 @@
-import { currentProfilePages } from "@/lib/current-profile-pages";
+import { currentUserPages } from "@/lib/current-user-pages";
 import { db } from "@/lib/db";
 import { NextApiResponseServerIo } from "@/types";
 import { NextApiRequest } from "next";
@@ -11,10 +11,10 @@ export default async function handler(
     return res.status(405).json({ message: "Method not allowed" });
   }
   try {
-    const profile = await currentProfilePages(req, res);
+    const user = await currentUserPages(req, res);
     const { content, fileUrl } = req.body;
     const { serverId, channelId } = req.query;
-    if (!profile) {
+    if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
     if (!serverId) {
@@ -32,7 +32,7 @@ export default async function handler(
         id: serverId as string,
         members: {
           some: {
-            profileId: profile.id,
+            userId: user.id,
           },
         },
       },
@@ -56,9 +56,7 @@ export default async function handler(
       return res.status(404).json({ message: "Channel not found" });
     }
 
-    const member = server.members.find(
-      (member) => member.profileId === profile.id
-    );
+    const member = server.members.find((member) => member.userId === user.id);
 
     if (!member) {
       return res.status(404).json({ message: "Member not found" });
@@ -74,7 +72,7 @@ export default async function handler(
       include: {
         member: {
           include: {
-            profile: true,
+            user: true,
           },
         },
       },

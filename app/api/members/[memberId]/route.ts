@@ -1,4 +1,4 @@
-import { currentProfile } from "@/lib/current-profile";
+import { currentUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
@@ -7,7 +7,7 @@ export async function DELETE(
   { params }: { params: { memberId: string } }
 ) {
   try {
-    const profile = await currentProfile();
+    const user = await currentUser();
     const { searchParams } = new URL(req.url);
     const serverId = searchParams.get("serverId");
 
@@ -17,16 +17,16 @@ export async function DELETE(
     if (!params.memberId)
       return new NextResponse("Member ID missing", { status: 400 });
 
-    if (!profile) return new NextResponse("Unauthorized", { status: 401 });
+    if (!user) return new NextResponse("Unauthorized", { status: 401 });
 
     const server = await db.server.update({
-      where: { id: serverId, profileId: profile.id },
+      where: { id: serverId, userId: user.id },
       data: {
         members: {
           deleteMany: {
             id: params.memberId,
-            profileId: {
-              not: profile.id,
+            userId: {
+              not: user.id,
             },
           },
         },
@@ -34,7 +34,7 @@ export async function DELETE(
       include: {
         members: {
           include: {
-            profile: true,
+            user: true,
           },
           orderBy: {
             role: "asc",
@@ -54,12 +54,12 @@ export async function PATCH(
   { params }: { params: { memberId: string } }
 ) {
   try {
-    const profile = await currentProfile();
+    const user = await currentUser();
     const { searchParams } = new URL(req.url);
     const { role } = await req.json();
 
     const serverId = searchParams.get("serverId");
-    if (!profile) {
+    if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     if (!serverId)
@@ -68,14 +68,14 @@ export async function PATCH(
       return new NextResponse("Member ID missing", { status: 400 });
 
     const server = await db.server.update({
-      where: { id: serverId, profileId: profile.id },
+      where: { id: serverId, userId: user.id },
       data: {
         members: {
           update: {
             where: {
               id: params.memberId,
-              profileId: {
-                not: profile.id,
+              userId: {
+                not: user.id,
               },
             },
             data: {
@@ -87,7 +87,7 @@ export async function PATCH(
       include: {
         members: {
           include: {
-            profile: true,
+            user: true,
           },
           orderBy: {
             role: "asc",

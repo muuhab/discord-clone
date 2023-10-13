@@ -3,7 +3,7 @@ import ChatHeader from "@/components/chat/chat-header";
 import ChatInput from "@/components/chat/chat-input";
 import ChatMessages from "@/components/chat/chat-messages";
 import { MediaRoom } from "@/components/media-room";
-import { currentProfile } from "@/lib/current-profile";
+import { currentUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { ChannelType } from "@prisma/client";
 import { redirect, useParams } from "next/navigation";
@@ -15,8 +15,8 @@ interface ChannelPageProps {
     }
 }
 const ChannelPage = async ({ params }: ChannelPageProps) => {
-    const profile = await currentProfile();
-    if (!profile) return redirect('/');
+    const user = await currentUser();
+    if (!user) return redirect('/');
 
     const channel = await db.channel.findUnique({
         where: {
@@ -24,7 +24,7 @@ const ChannelPage = async ({ params }: ChannelPageProps) => {
             server: {
                 members: {
                     some: {
-                        profileId: profile.id
+                        userId: user.id
                     }
                 }
             }
@@ -33,7 +33,7 @@ const ChannelPage = async ({ params }: ChannelPageProps) => {
 
     const member = await db.member.findFirst({
         where: {
-            profileId: profile.id,
+            userId: user.id,
             serverId: params.serverId
         }
     })

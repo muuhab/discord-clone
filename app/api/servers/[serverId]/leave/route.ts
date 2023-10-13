@@ -1,4 +1,4 @@
-import { currentProfile } from "@/lib/current-profile";
+import { currentUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
@@ -7,9 +7,9 @@ export async function PATCH(
   { params }: { params: { serverId: string } }
 ) {
   try {
-    const profile = await currentProfile();
+    const user = await currentUser();
 
-    if (!profile) return new NextResponse("Unauthorized", { status: 401 });
+    if (!user) return new NextResponse("Unauthorized", { status: 401 });
 
     if (!params.serverId)
       return new NextResponse("Server ID missing", { status: 400 });
@@ -17,19 +17,19 @@ export async function PATCH(
     const server = await db.server.update({
       where: {
         id: params.serverId,
-        profileId: {
-          not: profile.id,
+        userId: {
+          not: user.id,
         },
         members: {
           some: {
-            profileId: profile.id,
+            userId: user.id,
           },
         },
       },
       data: {
         members: {
           deleteMany: {
-            profileId: profile.id,
+            userId: user.id,
           },
         },
       },

@@ -1,7 +1,7 @@
 import { ModeToggle } from "@/components/mode-toggle"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import { currentProfile } from "@/lib/current-profile"
+import { currentUser } from "@/lib/current-user"
 import { db } from "@/lib/db"
 import { redirect } from "next/navigation"
 import LogOutButton from "./logout-button"
@@ -9,15 +9,15 @@ import NavigationAction from "./navigation-action"
 import NavigationItem from "./navigation-item"
 
 const NavigationSidebar = async ({ }) => {
-    const profile = await currentProfile()
+    const user = await currentUser()
 
-    if (!profile) return redirect("/")
+    if (!user) return redirect("/")
 
     const servers = await db.server.findMany({
         where: {
             members: {
                 some: {
-                    profileId: profile.id
+                    userId: user.id
                 }
             }
         }

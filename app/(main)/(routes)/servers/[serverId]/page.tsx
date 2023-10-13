@@ -1,4 +1,4 @@
-import { currentProfile } from '@/lib/current-profile'
+import { currentUser } from '@/lib/current-user'
 import { db } from '@/lib/db'
 import { redirect } from 'next/navigation'
 
@@ -9,14 +9,14 @@ interface ServerIdProps {
 }
 
 const ServerId = async ({ params }: ServerIdProps) => {
-    const profile = await currentProfile()
-    if (!profile) return redirect('/')
+    const user = await currentUser()
+    if (!user) return redirect('/')
     const server = await db.server.findUnique({
         where: {
             id: params.serverId,
             members: {
                 some: {
-                    profileId: profile.id
+                    userId: user.id
                 }
             }
         },

@@ -9,22 +9,22 @@ export const initialProfile = async () => {
       redirect("/api/auth/signin?callbackUrl=/server");
     }
     // if (!session?.user?.email) return null;
-    const profile = await db.profile.findUnique({
-      where: { userId: session.user.id },
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
     });
 
-    if (profile) return profile;
+    if (user) return user;
 
-    const newProfile = await db.profile.create({
+    const newUser = await db.user.create({
       data: {
-        userId: session.user.id,
+        id: session.user.id,
         name: session.user.name as string,
-        imageUrl: session.user.image || "https://www.gravatar.com/avatar/HASH",
+        image: session.user.image || "https://www.gravatar.com/avatar/HASH",
         email: session.user.email as string,
       },
     });
 
-    return newProfile;
+    return newUser;
   } catch (error) {
     return null;
   }

@@ -1,4 +1,4 @@
-import { currentProfile } from "@/lib/current-profile";
+import { currentUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { ChannelType, MemberRole } from "@prisma/client";
 import { redirect } from "next/navigation";
@@ -29,8 +29,8 @@ const roleIconMap = {
 }
 
 const ServerSidebar = async ({ serverId }: ServerSidebarProps) => {
-    const profile = await currentProfile();
-    if (!profile) return redirect("/");
+    const user = await currentUser();
+    if (!user) return redirect("/");
 
     const server = await db.server.findUnique({
         where: {
@@ -44,7 +44,7 @@ const ServerSidebar = async ({ serverId }: ServerSidebarProps) => {
             },
             members: {
                 include: {
-                    profile: true
+                    user: true
                 },
                 orderBy: {
                     role: "asc"
@@ -55,11 +55,11 @@ const ServerSidebar = async ({ serverId }: ServerSidebarProps) => {
     const textChannels = server?.channels.filter(channel => channel.type === ChannelType.TEXT)
     const audioChannels = server?.channels.filter(channel => channel.type === ChannelType.AUDIO)
     const videoChannels = server?.channels.filter(channel => channel.type === ChannelType.VIDEO)
-    const members = server?.members.filter(member => member.profileId !== profile.id)
+    const members = server?.members.filter(member => member.userId !== user.id)
 
     if (!server) return redirect("/");
 
-    const role = server.members.find(member => member.profileId === profile.id)?.role
+    const role = server.members.find(member => member.userId === user.id)?.role
 
 
     return <div className="flex flex-col h-full text-primary w-full dark:bg-[#2B2D31] bg-[#F2F3F5]">
@@ -103,7 +103,7 @@ const ServerSidebar = async ({ serverId }: ServerSidebarProps) => {
                             type: "member",
                             data: members?.map(member => ({
                                 icon: roleIconMap[member.role],
-                                name: member.profile.name,
+                                name: member.user.name as string,
                                 id: member.id
                             }))
                         },

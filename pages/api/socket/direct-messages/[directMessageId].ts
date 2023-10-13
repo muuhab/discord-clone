@@ -1,4 +1,4 @@
-import { currentProfilePages } from "@/lib/current-profile-pages";
+import { currentUserPages } from "@/lib/current-user-pages";
 import { db } from "@/lib/db";
 import { NextApiResponseServerIo } from "@/types";
 import { MemberRole } from "@prisma/client";
@@ -12,10 +12,10 @@ export default async function handler(
     return res.status(405).json({ message: "Method not allowed" });
   }
   try {
-    const profile = await currentProfilePages(req, res);
+    const user = await currentUserPages(req, res);
     const { directMessageId, conversationId } = req.query;
     const { content } = req.body;
-    if (!profile) {
+    if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
     if (!conversationId) {
@@ -28,12 +28,12 @@ export default async function handler(
         OR: [
           {
             memberOne: {
-              profileId: profile.id,
+              userId: user.id,
             },
           },
           {
             memberTwo: {
-              profileId: profile.id,
+              userId: user.id,
             },
           },
         ],
@@ -41,12 +41,12 @@ export default async function handler(
       include: {
         memberOne: {
           include: {
-            profile: true,
+            user: true,
           },
         },
         memberTwo: {
           include: {
-            profile: true,
+            user: true,
           },
         },
       },
@@ -55,7 +55,7 @@ export default async function handler(
       return res.status(404).json({ message: "Conversation not found" });
     }
     const member =
-      conversation.memberOne.profileId === profile.id
+      conversation.memberOne.userId === user.id
         ? conversation.memberOne
         : conversation.memberTwo;
 
@@ -71,7 +71,7 @@ export default async function handler(
       include: {
         member: {
           include: {
-            profile: true,
+            user: true,
           },
         },
       },
@@ -79,7 +79,7 @@ export default async function handler(
     if (!message || message.deleted) {
       return res.status(404).json({ message: "Message not found" });
     }
-    const isMessageOwner = message.member.profileId === profile.id;
+    const isMessageOwner = message.member.userId === user.id;
     const isAdmin = member.role === MemberRole.ADMIN;
     const isModerator = member.role === MemberRole.MODERATOR;
     const canModify = isMessageOwner || isAdmin || isModerator;
@@ -100,7 +100,7 @@ export default async function handler(
         include: {
           member: {
             include: {
-              profile: true,
+              user: true,
             },
           },
         },
@@ -120,7 +120,7 @@ export default async function handler(
         include: {
           member: {
             include: {
-              profile: true,
+              user: true,
             },
           },
         },

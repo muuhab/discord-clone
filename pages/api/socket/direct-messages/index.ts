@@ -1,4 +1,4 @@
-import { currentProfilePages } from "@/lib/current-profile-pages";
+import { currentUserPages } from "@/lib/current-user-pages";
 import { db } from "@/lib/db";
 import { NextApiResponseServerIo } from "@/types";
 import { NextApiRequest } from "next";
@@ -11,10 +11,10 @@ export default async function handler(
     return res.status(405).json({ message: "Method not allowed" });
   }
   try {
-    const profile = await currentProfilePages(req, res);
+    const user = await currentUserPages(req, res);
     const { content, fileUrl } = req.body;
     const { conversationId } = req.query;
-    if (!profile) {
+    if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
     if (!conversationId) {
@@ -31,12 +31,12 @@ export default async function handler(
         OR: [
           {
             memberOne: {
-              profileId: profile.id,
+              userId: user.id,
             },
           },
           {
             memberTwo: {
-              profileId: profile.id,
+              userId: user.id,
             },
           },
         ],
@@ -44,12 +44,12 @@ export default async function handler(
       include: {
         memberOne: {
           include: {
-            profile: true,
+            user: true,
           },
         },
         memberTwo: {
           include: {
-            profile: true,
+            user: true,
           },
         },
       },
@@ -59,7 +59,7 @@ export default async function handler(
     }
 
     const member =
-      conversation.memberOne.profileId === profile.id
+      conversation.memberOne.userId === user.id
         ? conversation.memberOne
         : conversation.memberTwo;
 
@@ -77,7 +77,7 @@ export default async function handler(
       include: {
         member: {
           include: {
-            profile: true,
+            user: true,
           },
         },
       },

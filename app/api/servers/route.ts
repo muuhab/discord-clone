@@ -1,4 +1,4 @@
-import { currentProfile } from "@/lib/current-profile";
+import { currentUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { MemberRole } from "@prisma/client";
 import { NextResponse } from "next/server";
@@ -7,21 +7,21 @@ import { v4 as uuidv4 } from "uuid";
 export async function POST(req: Request) {
   try {
     const { name, imageUrl } = await req.json();
-    const profile = await currentProfile();
-    if (!profile) {
+    const user = await currentUser();
+    if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const server = await db.server.create({
       data: {
         name,
         imageUrl,
-        profileId: profile.id,
+        userId: user.id,
         inviteCode: uuidv4(),
         channels: {
-          create: [{ name: "general", profileId: profile.id }],
+          create: [{ name: "general", userId: user.id }],
         },
         members: {
-          create: [{ profileId: profile.id, role: MemberRole.ADMIN }],
+          create: [{ userId: user.id, role: MemberRole.ADMIN }],
         },
       },
     });

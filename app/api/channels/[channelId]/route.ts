@@ -1,4 +1,4 @@
-import { currentProfile } from "@/lib/current-profile";
+import { currentUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { MemberRole } from "@prisma/client";
 import { NextResponse } from "next/server";
@@ -8,11 +8,11 @@ export async function DELETE(
   { params }: { params: { channelId: string } }
 ) {
   try {
-    const profile = await currentProfile();
+    const user = await currentUser();
     const { searchParams } = new URL(req.url);
     const serverId = searchParams.get("serverId");
 
-    if (!profile) {
+    if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -28,7 +28,7 @@ export async function DELETE(
         id: serverId,
         members: {
           some: {
-            profileId: profile.id,
+            userId: user.id,
             role: {
               in: [MemberRole.ADMIN, MemberRole.MODERATOR],
             },
@@ -58,12 +58,12 @@ export async function PATCH(
   { params }: { params: { channelId: string } }
 ) {
   try {
-    const profile = await currentProfile();
+    const user = await currentUser();
     const { searchParams } = new URL(req.url);
     const { name, type } = await req.json();
     const serverId = searchParams.get("serverId");
 
-    if (!profile) {
+    if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -82,7 +82,7 @@ export async function PATCH(
         id: serverId,
         members: {
           some: {
-            profileId: profile.id,
+            userId: user.id,
             role: {
               in: [MemberRole.ADMIN, MemberRole.MODERATOR],
             },

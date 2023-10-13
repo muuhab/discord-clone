@@ -1,6 +1,6 @@
 "use client"
 
-import { Member, MemberRole, Profile } from '@prisma/client'
+import { Member, MemberRole, User } from '@prisma/client'
 import * as z from 'zod'
 import { FC, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -27,7 +27,7 @@ interface ChatItemProps {
     id: string
     content: string
     member: Member & {
-        profile: Profile
+        user: User
     }
     timestamp: string
     fileUrl: string | null
@@ -126,14 +126,14 @@ const ChatItem: FC<ChatItemProps> = ({
                 onClick={onMemberClick}
                 className="cursor-pointer hover:drop-shadow-md transition">
                 <UserAvatar
-                    src={member.profile.imageUrl}
+                    src={member.user.image!}
                 />
             </div>
             <div className="flex flex-col w-full">
                 <div className="flex items-center gap-x-2">
                     <div className="flex items-center">
                         <p onClick={onMemberClick} className='font-semibold text-sm hover:underline cursor-pointer'>
-                            {member.profile.name}
+                            {member.user.name}
                         </p>
                         <ActionTooltip label={member.role}>
                             {roleIconMap[member.role]}

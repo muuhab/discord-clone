@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
-import { currentProfile } from "@/lib/current-profile";
+import { currentUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
@@ -9,15 +9,15 @@ export async function PATCH(
   { params }: { params: { serverId: string } }
 ) {
   try {
-    const profile = await currentProfile();
-    if (!profile) {
+    const user = await currentUser();
+    if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     if (!params.serverId) {
       return new NextResponse("Server Id Missing", { status: 400 });
     }
     const server = await db.server.update({
-      where: { id: params.serverId, profileId: profile.id },
+      where: { id: params.serverId, userId: user.id },
       data: {
         inviteCode: uuidv4(),
       },

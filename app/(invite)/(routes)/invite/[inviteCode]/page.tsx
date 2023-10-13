@@ -1,4 +1,4 @@
-import { currentProfile } from "@/lib/current-profile";
+import { currentUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 
@@ -9,9 +9,9 @@ interface InviteCodePageProps {
 }
 
 const InviteCodePage = async ({ params }: InviteCodePageProps) => {
-    const profile = await currentProfile()
+    const user = await currentUser()
 
-    if (!profile) return redirect('/')
+    if (!user) return redirect('/')
 
     if (!params.inviteCode) return redirect('/')
 
@@ -20,7 +20,7 @@ const InviteCodePage = async ({ params }: InviteCodePageProps) => {
             inviteCode: params.inviteCode,
             members: {
                 some: {
-                    profileId: profile.id
+                    userId: user.id
                 }
             }
         }
@@ -36,7 +36,7 @@ const InviteCodePage = async ({ params }: InviteCodePageProps) => {
             members: {
                 create: [
                     {
-                        profileId: profile.id,
+                        userId: user.id,
                     }
                 ]
             }

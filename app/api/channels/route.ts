@@ -1,17 +1,17 @@
-import { currentProfile } from "@/lib/current-profile";
+import { currentUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { MemberRole } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const profile = await currentProfile();
+    const user = await currentUser();
     const { name, type } = await req.json();
     const { searchParams } = new URL(req.url);
 
     const serverId = searchParams.get("serverId");
 
-    if (!profile) {
+    if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
         id: serverId,
         members: {
           some: {
-            profileId: profile.id,
+            userId: user.id,
             role: {
               in: [MemberRole.ADMIN, MemberRole.MODERATOR],
             },
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       data: {
         channels: {
           create: {
-            profileId: profile.id,
+            userId: user.id,
             name,
             type,
           },

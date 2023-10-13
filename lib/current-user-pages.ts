@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export const currentProfilePages = async (
+export const currentUserPages = async (
   req: NextApiRequest,
   res: NextApiResponse
 ) => {
@@ -13,9 +13,9 @@ export const currentProfilePages = async (
   if (!session?.user?.email) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-  const profile = await db.profile.findUnique({
-    where: { userId: session.user.id },
+  const user = await db.user.findUnique({
+    where: { id: session.user.id },
   });
 
-  return profile;
+  return user;
 };

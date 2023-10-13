@@ -1,5 +1,5 @@
 import ServerSidebar from "@/components/server/server-sidebar";
-import { currentProfile } from "@/lib/current-profile"
+import { currentUser } from "@/lib/current-user"
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 
@@ -11,16 +11,16 @@ interface ServerIdLayoutProps {
 }
 
 const ServerIdLayout = async ({ children, params }: ServerIdLayoutProps) => {
-    const profile = await currentProfile();
-    console.log(profile)
-    if (!profile) return redirect('/');
+    const user = await currentUser();
+    console.log(user)
+    if (!user) return redirect('/');
 
     const server = await db.server.findUnique({
         where: {
             id: params.serverId,
             members: {
                 some: {
-                    profileId: profile.id
+                    userId: user.id
                 }
             }
         }

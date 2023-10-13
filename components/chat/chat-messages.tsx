@@ -2,7 +2,7 @@
 
 import { useChatQuery } from '@/hooks/use-chat-query';
 import { useChatSocket } from '@/hooks/use-chat-socket';
-import { Member, Message, Profile } from '@prisma/client';
+import { Member, Message, User } from '@prisma/client';
 import { format } from 'date-fns';
 import { Loader, Loader2, ServerCrash } from 'lucide-react';
 import { FC, Fragment, useRef, ElementRef } from 'react';
@@ -24,7 +24,7 @@ interface ChatMessagesProps {
 }
 type MessageWithMemberWithProfile = Message & {
     member: Member & {
-        profile: Profile
+        user: User
     }
 }
 const ChatMessages: FC<ChatMessagesProps> = ({
