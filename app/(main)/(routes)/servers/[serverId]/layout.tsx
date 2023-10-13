@@ -1,7 +1,6 @@
 import ServerSidebar from "@/components/server/server-sidebar";
 import { currentProfile } from "@/lib/current-profile"
 import { db } from "@/lib/db";
-import { redirectToSignIn } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 interface ServerIdLayoutProps {
@@ -13,8 +12,8 @@ interface ServerIdLayoutProps {
 
 const ServerIdLayout = async ({ children, params }: ServerIdLayoutProps) => {
     const profile = await currentProfile();
-
-    if (!profile) return redirectToSignIn();
+    console.log(profile)
+    if (!profile) return redirect('/');
 
     const server = await db.server.findUnique({
         where: {

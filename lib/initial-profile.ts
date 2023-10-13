@@ -1,25 +1,31 @@
-import { currentUser, redirectToSignIn } from "@clerk/nextjs";
-
 import { db } from "@/lib/db";
+import getSession from "./getSession";
+import { redirect } from "next/navigation";
 
 export const initialProfile = async () => {
-  const user = await currentUser();
-  if (!user) return redirectToSignIn();
+  try {
+    const session = await getSession();
+    if (!session) {
+      redirect("/api/auth/signin?callbackUrl=/server");
+    }
+    // if (!session?.user?.email) return null;
+    const profile = await db.profile.findUnique({
+      where: { userId: session.user.id },
+    });
 
-  const profile = await db.profile.findUnique({
-    where: { userId: user.id },
-  });
+    if (profile) return profile;
 
-  if (profile) return profile;
+    const newProfile = await db.profile.create({
+      data: {
+        userId: session.user.id,
+        name: session.user.name as string,
+        imageUrl: session.user.image || "https://www.gravatar.com/avatar/HASH",
+        email: session.user.email as string,
+      },
+    });
 
-  const newProfile = await db.profile.create({
-    data: {
-      userId: user.id,
-      name: `${user.firstName} ${user.lastName}`,
-      imageUrl: user.imageUrl,
-      email: user.emailAddresses[0].emailAddress,
-    },
-  });
-
-  return newProfile;
+    return newProfile;
+  } catch (error) {
+    return null;
+  }
 };
